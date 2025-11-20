@@ -87,7 +87,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.lacnutry.app'
+    namespace 'app.rork.lacnutry_app'
     defaultConfig {
         applicationId 'com.lacnutry.app'
         minSdkVersion rootProject.ext.minSdkVersion
