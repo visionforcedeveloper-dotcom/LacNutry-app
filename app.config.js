@@ -9,7 +9,7 @@ module.exports = {
   expo: {
     name: IS_DEV ? 'LacNutry (DEV)' : 'LacNutry',
     slug: 'lacnutry-app',
-    version: IS_DEV ? '3.9.0' : '3.10.0',
+    version: IS_DEV ? '3.9.0' : '3.10.1',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'rork-app',
@@ -30,7 +30,7 @@ module.exports = {
       },
     },
     android: {
-      versionCode: 43,
+      versionCode: 44,
       adaptiveIcon: {
         foregroundImage: './assets/images/adaptive-icon.png',
         backgroundColor: '#ffffff',
