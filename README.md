@@ -1,318 +1,242 @@
-# Welcome to your Rork app
+# 🥛 LacNutry - App de Gestão de Intolerância à Lactose
 
-## Project info
+[![Expo](https://img.shields.io/badge/Expo-54.0-blue.svg)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.81-green.svg)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Analytics-orange.svg)](https://firebase.google.com/)
 
-This is a native cross-platform mobile app created with [Rork](https://rork.com)
+> Aplicativo mobile completo para pessoas com intolerância à lactose, com scanner de produtos IA, gerador de receitas, nutricionista virtual e muito mais.
 
-**Platform**: Native iOS & Android app, exportable to web
-**Framework**: Expo Router + React Native
+## 📱 Sobre o App
 
-## How can I edit this code?
+LacNutry é uma solução completa para pessoas que convivem com intolerância à lactose. O app oferece:
 
-There are several ways of editing your native mobile application.
+- 🔍 **Scanner de Produtos**: Analise rótulos com IA para detectar lactose
+- 👨‍⚕️ **Nutricionista Virtual**: Consultas 24/7 com IA especializada
+- 📖 **Gerador de Receitas**: Receitas personalizadas sem lactose
+- 📊 **Quiz Personalizado**: Avaliação completa do perfil alimentar
+- 📈 **Histórico**: Acompanhe suas análises e progresso
+- ⭐ **Favoritos**: Salve receitas e produtos preferidos
 
-### **Use Rork**
+## 🚀 Tecnologias
 
-Simply visit [rork.com](https://rork.com) and prompt to build your app with AI.
+### Core
+- **React Native 0.81** - Framework mobile
+- **Expo 54** - Desenvolvimento e build
+- **TypeScript** - Type safety
+- **Expo Router** - Navegação file-based
 
-Changes made via Rork will be committed automatically to this GitHub repo.
+### Backend & APIs
+- **tRPC** - Type-safe APIs
+- **Hono** - Backend server
+- **TanStack Query** - Data fetching
+- **Gemini AI** - Análise de imagens e chat
 
-Whenever you make a change in your local code editor and push it to GitHub, it will be also reflected in Rork.
+### Firebase
+- **Firebase Analytics** - Rastreamento de eventos
+- **Firebase Remote Config** - Configuração remota
 
-### **Use your preferred code editor**
+### Pagamentos & Monetização
+- **React Native IAP** - In-App Purchases
+- **Google Play Billing** - Assinaturas Android
 
-If you want to work locally using your own code editor, you can clone this repo and push changes. Pushed changes will also be reflected in Rork.
+### UI/UX
+- **NativeWind** - Tailwind CSS para React Native
+- **Lucide Icons** - Ícones modernos
+- **React Native Reanimated** - Animações fluidas
+- **Expo Linear Gradient** - Gradientes lindos
 
-If you are new to coding and unsure which editor to use, we recommend Cursor. If you're familiar with terminals, try Claude Code.
+### Desenvolvimento
+- **Bun** - Package manager rápido
+- **ESLint** - Linting
+- **EAS Build** - Builds na nuvem
 
-The only requirement is having Node.js & Bun installed - [install Node.js with nvm](https://github.com/nvm-sh/nvm) and [install Bun](https://bun.sh/docs/installation)
+## 📋 Pré-requisitos
 
-Follow these steps:
+- Node.js 20+
+- Bun (ou npm/yarn)
+- Expo CLI
+- Android Studio (para emulador Android)
+- Conta Expo EAS (para builds)
 
-```bash
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-bun i
-
-# Step 4: Start the instant web preview of your Rork app in your browser, with auto-reloading of your changes
-bun run start-web
-
-# Step 5: Start iOS preview
-# Option A (recommended):
-bun run start  # then press "i" in the terminal to open iOS Simulator
-# Option B (if supported by your environment):
-bun run start -- --ios
-```
-
-### **Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-## What technologies are used for this project?
-
-This project is built with the most popular native mobile cross-platform technical stack:
-
-- **React Native** - Cross-platform native mobile development framework created by Meta and used for Instagram, Airbnb, and lots of top apps in the App Store
-- **Expo** - Extension of React Native + platform used by Discord, Shopify, Coinbase, Telsa, Starlink, Eightsleep, and more
-- **Expo Router** - File-based routing system for React Native with support for web, server functions and SSR
-- **TypeScript** - Type-safe JavaScript
-- **React Query** - Server state management
-- **Lucide React Native** - Beautiful icons
-
-## How can I test my app?
-
-### **On your phone (Recommended)**
-
-1. **iOS**: Download the [Rork app from the App Store](https://apps.apple.com/app/rork) or [Expo Go](https://apps.apple.com/app/expo-go/id982107779)
-2. **Android**: Download the [Expo Go app from Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent)
-3. Run `bun run start` and scan the QR code from your development server
-
-### **In your browser**
-
-Run `bun start-web` to test in a web browser. Note: The browser preview is great for quick testing, but some native features may not be available.
-
-### **iOS Simulator / Android Emulator**
-
-You can test Rork apps in Expo Go or Rork iOS app. You don't need XCode or Android Studio for most features.
-
-**When do you need Custom Development Builds?**
-
-- Native authentication (Face ID, Touch ID, Apple Sign In)
-- In-app purchases and subscriptions
-- Push notifications
-- Custom native modules
-
-Learn more: [Expo Custom Development Builds Guide](https://docs.expo.dev/develop/development-builds/introduction/)
-
-If you have XCode (iOS) or Android Studio installed:
+## 🛠️ Instalação
 
 ```bash
-# iOS Simulator
-bun run start -- --ios
+# Clone o repositório
+git clone https://github.com/SEU_USUARIO/lacnutry-app.git
+cd lacnutry-app
 
-# Android Emulator
-bun run start -- --android
+# Instale as dependências
+bun install
+# ou
+npm install
+
+# Inicie o servidor de desenvolvimento
+bun start
+# ou
+npx expo start
 ```
 
-## How can I deploy this project?
+## 🔧 Configuração
 
-### **Publish to App Store (iOS)**
+### 1. Firebase
 
-1. **Install EAS CLI**:
-
-   ```bash
-   bun i -g @expo/eas-cli
-   ```
-
-2. **Configure your project**:
-
-   ```bash
-   eas build:configure
-   ```
-
-3. **Build for iOS**:
-
-   ```bash
-   eas build --platform ios
-   ```
-
-4. **Submit to App Store**:
-   ```bash
-   eas submit --platform ios
-   ```
-
-For detailed instructions, visit [Expo's App Store deployment guide](https://docs.expo.dev/submit/ios/).
-
-### **Publish to Google Play (Android)**
-
-1. **Build for Android**:
-
-   ```bash
-   eas build --platform android
-   ```
-
-2. **Submit to Google Play**:
-   ```bash
-   eas submit --platform android
-   ```
-
-For detailed instructions, visit [Expo's Google Play deployment guide](https://docs.expo.dev/submit/android/).
-
-### **Publish as a Website**
-
-Your React Native app can also run on the web:
-
-1. **Build for web**:
-
-   ```bash
-   eas build --platform web
-   ```
-
-2. **Deploy with EAS Hosting**:
-   ```bash
-   eas hosting:configure
-   eas hosting:deploy
-   ```
-
-Alternative web deployment options:
-
-- **Vercel**: Deploy directly from your GitHub repository
-- **Netlify**: Connect your GitHub repo to Netlify for automatic deployments
-
-## App Features
-
-This template includes:
-
-- **Cross-platform compatibility** - Works on iOS, Android, and Web
-- **File-based routing** with Expo Router
-- **Tab navigation** with customizable tabs
-- **Modal screens** for overlays and dialogs
-- **TypeScript support** for better development experience
-- **Async storage** for local data persistence
-- **Vector icons** with Lucide React Native
-
-## Project Structure
-
-```
-├── app/                    # App screens (Expo Router)
-│   ├── (tabs)/            # Tab navigation screens
-│   │   ├── _layout.tsx    # Tab layout configuration
-│   │   └── index.tsx      # Home tab screen
-│   ├── _layout.tsx        # Root layout
-│   ├── modal.tsx          # Modal screen example
-│   └── +not-found.tsx     # 404 screen
-├── assets/                # Static assets
-│   └── images/           # App icons and images
-├── constants/            # App constants and configuration
-├── app.json             # Expo configuration
-├── package.json         # Dependencies and scripts
-└── tsconfig.json        # TypeScript configuration
-```
-
-## Custom Development Builds
-
-For advanced native features, you'll need to create a Custom Development Build instead of using Expo Go.
-
-### **When do you need a Custom Development Build?**
-
-- **Native Authentication**: Face ID, Touch ID, Apple Sign In, Google Sign In
-- **In-App Purchases**: App Store and Google Play subscriptions
-- **Advanced Native Features**: Third-party SDKs, platform-specifc features (e.g. Widgets on iOS)
-- **Background Processing**: Background tasks, location tracking
-
-### **Creating a Custom Development Build**
+Crie um projeto no [Firebase Console](https://console.firebase.google.com/) e baixe o arquivo `google-services.json`:
 
 ```bash
-# Install EAS CLI
-bun i -g @expo/eas-cli
-
-# Configure your project for development builds
-eas build:configure
-
-# Create a development build for your device
-eas build --profile development --platform ios
-eas build --profile development --platform android
-
-# Install the development build on your device and start developing
-bun start --dev-client
+# Coloque o arquivo em:
+android/app/google-services.json
 ```
 
-**Learn more:**
+### 2. Google Play Billing
 
-- [Development Builds Introduction](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Creating Development Builds](https://docs.expo.dev/develop/development-builds/create-a-build/)
-- [Installing Development Builds](https://docs.expo.dev/develop/development-builds/installation/)
+Configure o Google Play Console e adicione os produtos IAP.
 
-## Advanced Features
+### 3. Gemini AI
 
-### **Add a Database**
+Configure a API do Google Gemini em `lib/gemini.ts`.
 
-Integrate with backend services:
+### 4. Variáveis de Ambiente
 
-- **Supabase** - PostgreSQL database with real-time features
-- **Firebase** - Google's mobile development platform
-- **Custom API** - Connect to your own backend
+Crie um arquivo `.env.local` (não comitar):
 
-### **Add Authentication**
+```env
+GEMINI_API_KEY=sua_api_key_aqui
+```
 
-Implement user authentication:
+## 📱 Executar no Dispositivo
 
-**Basic Authentication (works in Expo Go):**
+### Android
 
-- **Expo AuthSession** - OAuth providers (Google, Facebook, Apple) - [Guide](https://docs.expo.dev/guides/authentication/)
-- **Supabase Auth** - Email/password and social login - [Integration Guide](https://supabase.com/docs/guides/getting-started/tutorials/with-expo-react-native)
-- **Firebase Auth** - Comprehensive authentication solution - [Setup Guide](https://docs.expo.dev/guides/using-firebase/)
+```bash
+# Modo desenvolvimento
+npx expo run:android
 
-**Native Authentication (requires Custom Development Build):**
+# Build de produção (EAS)
+npx eas-cli build --platform android --profile production
+```
 
-- **Apple Sign In** - Native Apple authentication - [Implementation Guide](https://docs.expo.dev/versions/latest/sdk/apple-authentication/)
-- **Google Sign In** - Native Google authentication - [Setup Guide](https://docs.expo.dev/guides/google-authentication/)
+### iOS (futuro)
 
-### **Add Push Notifications**
+```bash
+npx expo run:ios
+```
 
-Send notifications to your users:
+## 🏗️ Build para Produção
 
-- **Expo Notifications** - Cross-platform push notifications
-- **Firebase Cloud Messaging** - Advanced notification features
+O app usa EAS Build para gerar builds de produção:
 
-### **Add Payments**
+```bash
+# Android App Bundle (AAB) para Google Play
+npx eas-cli build --platform android --profile production
 
-Monetize your app:
+# APK para testes
+npx eas-cli build --platform android --profile preview
+```
 
-**Web & Credit Card Payments (works in Expo Go):**
+## 📊 Estrutura do Projeto
 
-- **Stripe** - Credit card payments and subscriptions - [Expo + Stripe Guide](https://docs.expo.dev/guides/using-stripe/)
-- **PayPal** - PayPal payments integration - [Setup Guide](https://developer.paypal.com/docs/checkout/mobile/react-native/)
+```
+lacnutry-app/
+├── app/                          # Telas (Expo Router)
+│   ├── (tabs)/                   # Telas com tabs
+│   │   ├── index.tsx            # Home
+│   │   ├── receitas.tsx         # Receitas
+│   │   ├── scanner.tsx          # Scanner
+│   │   ├── ferramentas.tsx      # Ferramentas
+│   │   └── perfil.tsx           # Perfil
+│   ├── welcome.tsx              # Onboarding
+│   ├── quiz-lactose.tsx         # Quiz personalizado
+│   ├── testimonials.tsx         # Depoimentos
+│   ├── paywall.tsx              # Tela de assinatura
+│   └── _layout.tsx              # Layout raiz
+├── components/                   # Componentes reutilizáveis
+├── contexts/                     # Context API
+│   ├── ProfileContext.tsx       # Estado do usuário
+│   └── NotificationContext.tsx  # Notificações
+├── hooks/                        # Custom hooks
+│   └── useInAppPurchase.ts     # IAP hook
+├── lib/                          # Bibliotecas e utilidades
+│   ├── gemini.ts                # Integração Gemini AI
+│   ├── firebase-analytics.ts    # Firebase Analytics
+│   ├── trpc.ts                  # tRPC client
+│   └── asyncStorage.ts          # Storage local
+├── backend/                      # Backend tRPC
+│   ├── hono.ts                  # Servidor Hono
+│   └── trpc/                    # Rotas tRPC
+├── android/                      # Projeto Android nativo
+├── assets/                       # Imagens e recursos
+├── app.config.js                # Configuração Expo
+├── eas.json                     # Configuração EAS Build
+└── package.json                 # Dependências
 
-**Native In-App Purchases (requires Custom Development Build):**
+```
 
-- **RevenueCat** - Cross-platform in-app purchases and subscriptions - [Expo Integration Guide](https://www.revenuecat.com/docs/expo)
-- **Expo In-App Purchases** - Direct App Store/Google Play integration - [Implementation Guide](https://docs.expo.dev/versions/latest/sdk/in-app-purchases/)
+## 🎯 Funcionalidades Principais
 
-**Paywall Optimization:**
+### Scanner de Produtos IA
+- Análise de rótulos com Gemini Vision AI
+- Detecção automática de lactose e derivados
+- Histórico de análises
+- Recomendações personalizadas
 
-- **Superwall** - Paywall A/B testing and optimization - [React Native SDK](https://docs.superwall.com/docs/react-native)
-- **Adapty** - Mobile subscription analytics and paywalls - [Expo Integration](https://docs.adapty.io/docs/expo)
+### Nutricionista Virtual
+- Chat 24/7 com IA especializada
+- Respostas contextualizadas sobre intolerância
+- Planos alimentares personalizados
 
-## I want to use a custom domain - is that possible?
+### Gerador de Receitas
+- Receitas sem lactose personalizadas
+- Filtros por categoria e dificuldade
+- Favoritar receitas
+- Informações nutricionais
 
-For web deployments, you can use custom domains with:
+### Sistema de Assinatura
+- Trial de 3 dias grátis
+- Assinatura mensal/anual via Google Play
+- Bloqueio automático ao expirar
+- Gerenciamento via Google Play
 
-- **EAS Hosting** - Custom domains available on paid plans
-- **Netlify** - Free custom domain support
-- **Vercel** - Custom domains with automatic SSL
+## 📈 Analytics
 
-For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
+O app rastreia eventos importantes usando Firebase Analytics:
 
-## Troubleshooting
+- `quiz_start` - Início do quiz
+- `quiz_complete` - Conclusão do quiz
+- `quiz_abandoned` - Abandono do quiz
+- `product_scan` - Scanner usado
+- `recipe_view` - Visualização de receita
+- `subscription_started` - Assinatura iniciada
 
-### **App not loading on device?**
+## 🔐 Segurança
 
-1. Make sure your phone and computer are on the same WiFi network
-2. Try using tunnel mode: `bun start -- --tunnel`
-3. Check if your firewall is blocking the connection
+- Todas as APIs usam autenticação
+- Dados sensíveis não são logados
+- Keystore de produção não está no repositório
+- Variáveis de ambiente para chaves de API
 
-### **Build failing?**
+## 🤝 Contribuindo
 
-1. Clear your cache: `bunx expo start --clear`
-2. Delete `node_modules` and reinstall: `rm -rf node_modules && bun install`
-3. Check [Expo's troubleshooting guide](https://docs.expo.dev/troubleshooting/build-errors/)
+Contribuições são bem-vindas! Por favor:
 
-### **Need help with native features?**
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
 
-- Check [Expo's documentation](https://docs.expo.dev/) for native APIs
-- Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
-- Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions
+## 📝 Licença
 
-## About Rork
+Este projeto é propriedade privada. Todos os direitos reservados.
 
-Rork builds fully native mobile apps using React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
+## 👨‍💻 Autor
 
-Your Rork app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
+**LacNutry Team**
+
+## 📞 Suporte
+
+Para suporte, entre em contato através do email: suporte@lacnutry.app
+
+---
+
+Feito com ❤️ para pessoas com intolerância à lactose

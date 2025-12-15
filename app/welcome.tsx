@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,12 +14,43 @@ import { ArrowRight } from "lucide-react-native";
 import { router } from "expo-router";
 import Colors from "@/constants/colors";
 
+const { width } = Dimensions.get('window');
+
+const videoSources = [
+  {
+    id: '1',
+    video: require('@/assets/Video Scan-app.gif'),
+  },
+  {
+    id: '2',
+    video: require('@/assets/Video G.receitas.gif'),
+  },
+  {
+    id: '3',
+    video: require('@/assets/Video Nutri app.gif'),
+  },
+  {
+    id: '4',
+    video: require('@/assets/Video receitas app.gif'),
+  },
+];
+
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleStartQuiz = () => {
     router.replace("/quiz-lactose");
   };
+
+  // Auto-slide a cada 4 segundos (tempo para o GIF completar)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % videoSources.length);
+    }, 4000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -26,6 +58,12 @@ export default function WelcomeScreen() {
         colors={[Colors.primary, Colors.primaryDark]}
         style={styles.gradient}
       >
+        {/* Indicador de Idioma */}
+        <View style={[styles.languageIndicator, { top: insets.top + 16 }]}>
+          <Text style={styles.languageText}>PT</Text>
+          <Text style={styles.flagEmoji}>🇧🇷</Text>
+        </View>
+
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
@@ -34,22 +72,18 @@ export default function WelcomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <Text style={styles.title}>Bem-vindo ao LacNutry!</Text>
-            <Text style={styles.subtitle}>
-              Sua jornada para uma vida sem lactose começa aqui
-            </Text>
-
-            <Image
-              source={{
-                uri: "https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/mz7odnadmopgcvst3ck83",
-              }}
-              style={styles.image}
-              resizeMode="cover"
-            />
+            {/* Vídeo em Rotação */}
+            <View style={styles.videoContainer}>
+              <Image 
+                source={videoSources[activeIndex].video}
+                style={styles.videoImage}
+                resizeMode="contain"
+              />
+            </View>
 
             <View style={styles.ctaContainer}>
-              <Text style={styles.ctaText}>
-                Vamos conhecer você melhor para personalizar sua experiência!
+              <Text style={styles.ctaTitle}>
+                Viva sem desconforto — a sua liberdade começa aqui
               </Text>
 
               <TouchableOpacity
@@ -57,13 +91,9 @@ export default function WelcomeScreen() {
                 onPress={handleStartQuiz}
                 activeOpacity={0.8}
               >
-                <Text style={styles.ctaButtonText}>Iniciar Quiz</Text>
+                <Text style={styles.ctaButtonText}>Começar</Text>
                 <ArrowRight color={Colors.primary} size={24} />
               </TouchableOpacity>
-
-              <Text style={styles.disclaimerText}>
-                Leva apenas 3 minutos • 15 perguntas rápidas
-              </Text>
             </View>
           </View>
         </ScrollView>
@@ -79,6 +109,26 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  languageIndicator: {
+    position: 'absolute',
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    zIndex: 10,
+  },
+  languageText: {
+    fontSize: 12,
+    fontWeight: '600' as const,
+    color: Colors.white,
+  },
+  flagEmoji: {
+    fontSize: 16,
+  },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
@@ -87,46 +137,32 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "700" as const,
-    color: Colors.white,
-    textAlign: "center",
-    marginBottom: 12,
+  videoContainer: {
+    width: '100%',
+    marginBottom: 40,
     marginTop: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  subtitle: {
-    fontSize: 18,
-    color: Colors.white,
-    textAlign: "center",
-    opacity: 0.9,
-    lineHeight: 26,
-    marginBottom: 32,
-    paddingHorizontal: 20,
-  },
-  image: {
-    width: "100%",
-    height: 220,
+  videoImage: {
+    width: width - 48,
+    height: 450,
     borderRadius: 24,
-    marginBottom: 48,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    alignSelf: 'center',
   },
   ctaContainer: {
     width: "100%",
     alignItems: "center",
     marginTop: 8,
   },
-  ctaText: {
-    fontSize: 16,
+  ctaTitle: {
+    fontSize: 24,
+    fontWeight: "700" as const,
     color: Colors.white,
     textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 24,
-    opacity: 0.95,
+    marginBottom: 32,
+    lineHeight: 32,
+    paddingHorizontal: 8,
   },
   ctaButton: {
     flexDirection: "row",
@@ -149,11 +185,5 @@ const styles = StyleSheet.create({
     fontWeight: "700" as const,
     color: Colors.primary,
   },
-  disclaimerText: {
-    fontSize: 13,
-    color: Colors.white,
-    opacity: 0.8,
-    marginTop: 16,
-    textAlign: "center",
-  },
 });
+

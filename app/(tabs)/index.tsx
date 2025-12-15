@@ -559,11 +559,6 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.header}>
-          <Image
-            source={{ uri: "https://pub-e001eb4506b145aa938b5d3badbff6a5.r2.dev/attachments/3x86bdtigtqk794mv38y1" }}
-            style={styles.logo}
-            resizeMode="contain"
-          />
           <Text style={styles.headerTitle}>LacNutry</Text>
           <Text style={styles.headerSubtitle}>Descubra receitas deliciosas sem lactose</Text>
         </View>
@@ -830,11 +825,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: Colors.background,
     alignItems: "center",
-  },
-  logo: {
-    width: 64,
-    height: 64,
-    marginBottom: 8,
   },
   headerTitle: {
     fontSize: 24,

@@ -86,6 +86,7 @@ export default function RecipeGeneratorScreen() {
       <Stack.Screen
         options={{
           title: "Gerador de Receitas",
+          headerShown: true,
           headerStyle: {
             backgroundColor: Colors.background,
           },

@@ -1,6 +1,6 @@
 import createContextHook from '@nkzw/create-context-hook';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Storage } from '@/lib/asyncStorage';
 
 export interface UserProfile {
   name: string;
@@ -24,12 +24,20 @@ export interface StatsData {
   lastAccessDate: string;
 }
 
+export interface QuizProgress {
+  currentQuestion: number;
+  answers: Record<string, number>;
+  userName?: string;
+  userEmail?: string;
+}
+
 const STORAGE_KEYS = {
   PROFILE: '@lacnutry_profile',
   FAVORITES: '@lacnutry_favorites',
   HISTORY: '@lacnutry_history',
   FIRST_ACCESS: '@lacnutry_first_access',
   QUIZ_COMPLETED: '@lacnutry_quiz_completed',
+  QUIZ_PROGRESS: '@lacnutry_quiz_progress',
   SUBSCRIPTION: '@lacnutry_subscription',
   STATS: '@lacnutry_stats',
 };
@@ -49,6 +57,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
   const [isFirstAccess, setIsFirstAccess] = useState(true);
   const [hasCompletedQuiz, setHasCompletedQuiz] = useState(false);
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [quizProgress, setQuizProgress] = useState<QuizProgress | null>(null);
   const [stats, setStats] = useState<StatsData>({
     totalScans: 0,
     streakDays: 0,
@@ -57,14 +66,15 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
 
   const loadData = useCallback(async () => {
     try {
-      const [profileData, favoritesData, historyData, firstAccessData, quizData, subscriptionData, statsData] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.PROFILE),
-        AsyncStorage.getItem(STORAGE_KEYS.FAVORITES),
-        AsyncStorage.getItem(STORAGE_KEYS.HISTORY),
-        AsyncStorage.getItem(STORAGE_KEYS.FIRST_ACCESS),
-        AsyncStorage.getItem(STORAGE_KEYS.QUIZ_COMPLETED),
-        AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION),
-        AsyncStorage.getItem(STORAGE_KEYS.STATS),
+      const [profileData, favoritesData, historyData, firstAccessData, quizData, quizProgressData, subscriptionData, statsData] = await Promise.all([
+        Storage.getItem(STORAGE_KEYS.PROFILE),
+        Storage.getItem(STORAGE_KEYS.FAVORITES),
+        Storage.getItem(STORAGE_KEYS.HISTORY),
+        Storage.getItem(STORAGE_KEYS.FIRST_ACCESS),
+        Storage.getItem(STORAGE_KEYS.QUIZ_COMPLETED),
+        Storage.getItem(STORAGE_KEYS.QUIZ_PROGRESS),
+        Storage.getItem(STORAGE_KEYS.SUBSCRIPTION),
+        Storage.getItem(STORAGE_KEYS.STATS),
       ]);
 
       if (profileData) {
@@ -80,6 +90,10 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
       setIsFirstAccess(firstAccessData === null);
       setHasCompletedQuiz(quizData === 'true');
       setHasSubscription(subscriptionData === 'true');
+      
+      if (quizProgressData) {
+        setQuizProgress(JSON.parse(quizProgressData));
+      }
       
       if (statsData) {
         const parsedStats = JSON.parse(statsData);
@@ -102,7 +116,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
         };
         
         setStats(updatedStats);
-        await AsyncStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(updatedStats));
+        await Storage.setItem(STORAGE_KEYS.STATS, JSON.stringify(updatedStats));
       } else {
         const initialStats = {
           totalScans: 0,
@@ -110,7 +124,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
           lastAccessDate: new Date().toISOString(),
         };
         setStats(initialStats);
-        await AsyncStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(initialStats));
+        await Storage.setItem(STORAGE_KEYS.STATS, JSON.stringify(initialStats));
       }
     } catch (error) {
       console.error('Error loading profile data:', error);
@@ -125,7 +139,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
 
   const updateProfile = useCallback(async (newProfile: UserProfile) => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(newProfile));
+      await Storage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(newProfile));
       setProfile(newProfile);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -133,21 +147,21 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
   }, []);
 
   const toggleFavorite = useCallback(async (recipeId: string) => {
-    console.log('🔄 Toggle favorite called for:', recipeId);
+    console.log('[Profile] Toggle favorite called for:', recipeId);
     setFavorites((currentFavorites) => {
-      console.log('📋 Current favorites:', currentFavorites);
+      console.log('[Profile] Current favorites:', currentFavorites);
       const newFavorites = currentFavorites.includes(recipeId)
         ? currentFavorites.filter((id) => id !== recipeId)
         : [...currentFavorites, recipeId];
       
-      console.log('✨ New favorites:', newFavorites);
+      console.log('[Profile] New favorites:', newFavorites);
       
-      AsyncStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(newFavorites))
+      Storage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(newFavorites))
         .then(() => {
-          console.log('✅ Favorites saved successfully');
+          console.log('[Profile] Favorites saved successfully');
         })
         .catch((error) => {
-          console.error('❌ Error toggling favorite:', error);
+          console.error('[Profile] Error toggling favorite:', error);
         });
       
       return newFavorites;
@@ -157,7 +171,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
   const addToHistory = useCallback(async (item: ScanHistory) => {
     setHistory((currentHistory) => {
       const newHistory = [item, ...currentHistory.slice(0, 49)];
-      AsyncStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(newHistory)).catch((error) => {
+      Storage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(newHistory)).catch((error) => {
         console.error('Error adding to history:', error);
       });
       return newHistory;
@@ -169,7 +183,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
         totalScans: currentStats.totalScans + 1,
         lastAccessDate: new Date().toISOString(),
       };
-      AsyncStorage.setItem(STORAGE_KEYS.STATS, JSON.stringify(updatedStats)).catch((error) => {
+      Storage.setItem(STORAGE_KEYS.STATS, JSON.stringify(updatedStats)).catch((error) => {
         console.error('Error updating stats:', error);
       });
       return updatedStats;
@@ -178,7 +192,7 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
 
   const clearHistory = useCallback(async () => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify([]));
+      await Storage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify([]));
       setHistory([]);
     } catch (error) {
       console.error('Error clearing history:', error);
@@ -187,11 +201,32 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
 
   const isFavorite = useCallback((recipeId: string) => favorites.includes(recipeId), [favorites]);
 
+  const saveQuizProgress = useCallback(async (progress: QuizProgress) => {
+    try {
+      await Storage.setItem(STORAGE_KEYS.QUIZ_PROGRESS, JSON.stringify(progress));
+      setQuizProgress(progress);
+      console.log('[Profile] Progresso do quiz salvo:', progress.currentQuestion);
+    } catch (error) {
+      console.error('[Profile] Erro ao salvar progresso do quiz:', error);
+    }
+  }, []);
+
+  const clearQuizProgress = useCallback(async () => {
+    try {
+      await Storage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS);
+      setQuizProgress(null);
+      console.log('[Profile] Progresso do quiz limpo');
+    } catch (error) {
+      console.error('[Profile] Erro ao limpar progresso do quiz:', error);
+    }
+  }, []);
+
   const completeQuiz = useCallback(async (name: string, email: string) => {
     try {
       await Promise.all([
-        AsyncStorage.setItem(STORAGE_KEYS.FIRST_ACCESS, 'false'),
-        AsyncStorage.setItem(STORAGE_KEYS.QUIZ_COMPLETED, 'true'),
+        Storage.setItem(STORAGE_KEYS.FIRST_ACCESS, 'false'),
+        Storage.setItem(STORAGE_KEYS.QUIZ_COMPLETED, 'true'),
+        Storage.removeItem(STORAGE_KEYS.QUIZ_PROGRESS), // Limpar progresso ao completar
       ]);
       
       const updatedProfile = { ...profile, name, email };
@@ -199,20 +234,31 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
       
       setIsFirstAccess(false);
       setHasCompletedQuiz(true);
+      setQuizProgress(null);
       
-      console.log('✅ Quiz completado e perfil atualizado');
+      console.log('[Profile] Quiz completado e perfil atualizado');
     } catch (error) {
-      console.error('❌ Erro ao completar quiz:', error);
+      console.error('[Profile] Erro ao completar quiz:', error);
     }
   }, [profile, updateProfile]);
 
   const completeSubscription = useCallback(async () => {
     try {
-      await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
+      await Storage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
       setHasSubscription(true);
-      console.log('✅ Assinatura ativada');
+      console.log('[Profile] Assinatura ativada');
     } catch (error) {
-      console.error('❌ Erro ao ativar assinatura:', error);
+      console.error('[Profile] Erro ao ativar assinatura:', error);
+    }
+  }, []);
+
+  const cancelSubscription = useCallback(async () => {
+    try {
+      await Storage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'false');
+      setHasSubscription(false);
+      console.log('[Profile] Assinatura cancelada/expirada');
+    } catch (error) {
+      console.error('[Profile] Erro ao cancelar assinatura:', error);
     }
   }, []);
 
@@ -224,13 +270,17 @@ export const [ProfileProvider, useProfile] = createContextHook(() => {
     isFirstAccess,
     hasCompletedQuiz,
     hasSubscription,
+    quizProgress,
     stats,
     updateProfile,
     toggleFavorite,
     addToHistory,
     clearHistory,
     isFavorite,
+    saveQuizProgress,
+    clearQuizProgress,
     completeQuiz,
     completeSubscription,
-  }), [profile, favorites, history, isLoading, isFirstAccess, hasCompletedQuiz, hasSubscription, stats, updateProfile, toggleFavorite, addToHistory, clearHistory, isFavorite, completeQuiz, completeSubscription]);
+    cancelSubscription,
+  }), [profile, favorites, history, isLoading, isFirstAccess, hasCompletedQuiz, hasSubscription, quizProgress, stats, updateProfile, toggleFavorite, addToHistory, clearHistory, isFavorite, saveQuizProgress, clearQuizProgress, completeQuiz, completeSubscription, cancelSubscription]);
 });

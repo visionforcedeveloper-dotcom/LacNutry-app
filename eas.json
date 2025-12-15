@@ -1,7 +1,6 @@
 {
   "cli": {
-    "version": ">= 13.2.0",
-    "appVersionSource": "remote"
+    "version": ">= 13.2.0"
   },
   "build": {
     "development": {
@@ -23,10 +22,22 @@
     },
     "production": {
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "credentialsSource": "remote",
+        "node": "20.18.0"
       },
       "ios": {
         "buildConfiguration": "Release"
+      },
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      },
+      "cache": {
+        "key": "lacnutry-v3.10",
+        "cacheDefaultPaths": true,
+        "paths": [
+          "node_modules"
+        ]
       }
     }
   },

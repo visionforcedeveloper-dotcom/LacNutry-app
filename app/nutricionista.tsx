@@ -13,42 +13,71 @@ import {
 import { Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Send } from "lucide-react-native";
-import { useRorkAgent, createRorkTool } from "@rork-ai/toolkit-sdk";
-import { z } from "zod";
 import Colors from "@/constants/colors";
+import { chatWithNutritionist } from "@/lib/gemini";
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+}
 
 export default function NutritionistScreen() {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const { messages, error, sendMessage } = useRorkAgent({
-    tools: {
-      calculateCalories: createRorkTool({
-        description: "Calcular calorias de um alimento ou receita",
-        zodSchema: z.object({
-          food: z.string().describe("Nome do alimento ou prato"),
-          portion: z.string().describe("Porção (ex: 100g, 1 xícara)"),
-        }),
-        execute(input) {
-          console.log("Calculando calorias para:", input);
-          const result = {
-            calories: Math.floor(Math.random() * 500) + 50,
-            protein: Math.floor(Math.random() * 30),
-            carbs: Math.floor(Math.random() * 50),
-            fat: Math.floor(Math.random() * 20),
-          };
-          return JSON.stringify(result);
-        },
-      }),
-    },
-
-  });
-
-  const handleSend = () => {
+  // Armazena histórico de conversa para contexto do Gemini
+  const conversationHistory = useRef<Array<{ role: "user" | "model"; text: string }>>([]);
+  
+  const handleSend = async () => {
     if (input.trim()) {
-      sendMessage(input);
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: input.trim(),
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      const userInput = input.trim();
       setInput("");
+      setIsLoading(true);
+      
+      try {
+        // Chamar API do Gemini
+        const aiResponse = await chatWithNutritionist(
+          userInput,
+          conversationHistory.current
+        );
+        
+        // Atualizar histórico
+        conversationHistory.current.push(
+          { role: "user", text: userInput },
+          { role: "model", text: aiResponse }
+        );
+        
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: aiResponse,
+        };
+        
+        setMessages(prev => [...prev, aiMessage]);
+      } catch (error) {
+        console.error("Erro ao obter resposta:", error);
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: "Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, verifique sua conexão e tente novamente. 🙏",
+        };
+        
+        setMessages(prev => [...prev, errorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -61,6 +90,7 @@ export default function NutritionistScreen() {
       <Stack.Screen
         options={{
           title: "Nutricionista IA",
+          headerShown: true,
           headerStyle: {
             backgroundColor: Colors.background,
           },
@@ -91,75 +121,43 @@ export default function NutritionistScreen() {
               </Text>
               <Text style={styles.emptyStateText}>
                 Estou aqui para ajudar com dúvidas sobre dietas sem lactose,
-                nutrição e alimentação saudável. Como posso ajudar hoje?
+                nutrição e alimentação saudável. 
+                {'\n\n'}
+                💡 Dica: Me conte sobre sua rotina (acordar, trabalho, treino) 
+                que eu crio um cardápio completo personalizado para você!
+                {'\n\n'}
+                Como posso ajudar hoje?
               </Text>
             </View>
           )}
 
           {messages.map((message) => (
             <View key={message.id} style={styles.messageWrapper}>
-              {message.parts.map((part, index) => {
-                if (part.type === "text") {
-                  return (
-                    <View
-                      key={`${message.id}-${index}`}
-                      style={[
-                        styles.messageBubble,
-                        message.role === "user"
-                          ? styles.userBubble
-                          : styles.assistantBubble,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.messageText,
-                          message.role === "user" && styles.userMessageText,
-                        ]}
-                      >
-                        {part.text}
-                      </Text>
-                    </View>
-                  );
-                }
-
-                if (part.type === "tool") {
-                  if (part.state === "input-streaming" || part.state === "input-available") {
-                    return (
-                      <View
-                        key={`${message.id}-${index}`}
-                        style={styles.toolCallBubble}
-                      >
-                        <ActivityIndicator size="small" color={Colors.primary} />
-                        <Text style={styles.toolCallText}>
-                          Calculando informações nutricionais...
-                        </Text>
-                      </View>
-                    );
-                  }
-
-                  if (part.state === "output-available") {
-                    return (
-                      <View
-                        key={`${message.id}-${index}`}
-                        style={styles.toolResultBubble}
-                      >
-                        <Text style={styles.toolResultText}>
-                          📊 Informação Nutricional:{"\n"}
-                          {JSON.stringify(part.output, null, 2)}
-                        </Text>
-                      </View>
-                    );
-                  }
-                }
-
-                return null;
-              })}
+              <View
+                style={[
+                  styles.messageBubble,
+                  message.role === "user"
+                    ? styles.userBubble
+                    : styles.assistantBubble,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.messageText,
+                    message.role === "user" && styles.userMessageText,
+                  ]}
+                >
+                  {message.content}
+                </Text>
+              </View>
             </View>
           ))}
 
-          {error && (
-            <View style={styles.errorBubble}>
-              <Text style={styles.errorText}>Erro: {error.message}</Text>
+          {isLoading && (
+            <View style={styles.messageWrapper}>
+              <View style={[styles.messageBubble, styles.assistantBubble]}>
+                <ActivityIndicator size="small" color={Colors.primary} />
+              </View>
             </View>
           )}
         </ScrollView>
@@ -175,9 +173,9 @@ export default function NutritionistScreen() {
             maxLength={500}
           />
           <TouchableOpacity
-            style={[styles.sendButton, !input.trim() && styles.sendButtonDisabled]}
+            style={[styles.sendButton, (!input.trim() || isLoading) && styles.sendButtonDisabled]}
             onPress={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isLoading}
           >
             <Send size={20} color={Colors.white} />
           </TouchableOpacity>
@@ -248,47 +246,6 @@ const styles = StyleSheet.create({
   },
   userMessageText: {
     color: Colors.white,
-  },
-  toolCallBubble: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    maxWidth: "80%",
-  },
-  toolCallText: {
-    fontSize: 14,
-    color: Colors.primary,
-    fontWeight: "600" as const,
-  },
-  toolResultBubble: {
-    backgroundColor: "#E8F5E9",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    maxWidth: "80%",
-    marginTop: 4,
-  },
-  toolResultText: {
-    fontSize: 13,
-    color: "#2E7D32",
-    fontFamily: Platform.OS === "ios" ? "Courier" : "monospace",
-  },
-  errorBubble: {
-    backgroundColor: "#FFEBEE",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignSelf: "center",
-  },
-  errorText: {
-    fontSize: 14,
-    color: Colors.error,
   },
   inputContainer: {
     flexDirection: "row",

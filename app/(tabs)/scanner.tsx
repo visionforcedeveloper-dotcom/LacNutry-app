@@ -14,9 +14,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, X, Sparkles, AlertCircle, Info, TrendingUp, Apple, ChefHat, ListChecks, Image as ImageIcon } from "lucide-react-native";
-import { generateText } from "@rork-ai/toolkit-sdk";
 import Colors from "@/constants/colors";
 import { useProfile } from "@/contexts/ProfileContext";
+import { analyzeProductImage } from "@/lib/gemini";
 
 interface AnalysisResult {
   hasLactose: boolean;
@@ -56,55 +56,24 @@ export default function ScannerScreen() {
       
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      // Iniciar animação de progresso
       const progressInterval = setInterval(() => {
         setAnalyzingProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
           }
-          return prev + 15;
+          return prev + 10;
         });
-      }, 200);
+      }, 300);
 
-      const additionalContext = additionalInfo.trim() 
-        ? `\n\nInformações adicionais do usuário: ${additionalInfo}` 
-        : "";
-
-      const response = await generateText({
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Analise esta imagem de alimento/prato e forneça as seguintes informações em formato JSON:
-1. hasLactose: (true/false) se contém lactose
-2. lactoseLevel: ("baixo", "médio" ou "alto") - nível de lactose se hasLactose for true
-3. ingredients: array com ingredientes identificados
-4. nutritionalInfo: objeto com { calories (number), protein (number em g), carbs (number em g), fat (number em g), lactose (number em g) }
-5. risks: array com riscos para pessoas intolerant a lactose
-6. recommendations: array com recomendações para pessoas intolerantes à lactose
-7. alternativeRecipes: array com sugestões de receitas similares sem lactose (opcional)
-8. improvements: array com sugestões de melhorias ou substituições (opcional)${additionalContext}
-
-Responda APENAS com o JSON, sem texto adicional.`,
-              },
-              {
-                type: "image",
-                image: base64Image,
-              },
-            ],
-          },
-        ],
-      });
-
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Formato de resposta inválido");
-      }
-
+      // Chamar API do Gemini para análise real da imagem
+      const result = await analyzeProductImage(
+        base64Image,
+        additionalInfo.trim() || undefined
+      );
+      
       clearInterval(progressInterval);
-      const result = JSON.parse(jsonMatch[0]) as AnalysisResult;
       setAnalyzingProgress(100);
       
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -113,16 +82,28 @@ Responda APENAS com o JSON, sem texto adicional.`,
       
       addToHistory({
         id: Date.now().toString(),
-        productName: additionalInfo.trim() || 'Análise de alimento',
+        productName: result.productName || additionalInfo.trim() || 'Análise de alimento',
         date: new Date().toISOString(),
         hasLactose: result.hasLactose,
       });
       
-      console.log('✅ Análise adicionada ao histórico');
+      console.log('✅ Análise adicionada ao histórico:', result.productName);
     } catch (error) {
       console.error("Erro ao analisar imagem:", error);
       setIsAnalyzing(false);
-      alert("Erro ao analisar imagem. Tente novamente.");
+      
+      let errorMessage = "Erro ao analisar imagem. ";
+      if (error instanceof Error) {
+        if (error.message.includes("API")) {
+          errorMessage += "Problema ao conectar com o serviço de análise. Verifique sua conexão.";
+        } else if (error.message.includes("JSON")) {
+          errorMessage += "Erro ao processar resposta. Tente novamente.";
+        } else {
+          errorMessage += "Tente novamente.";
+        }
+      }
+      
+      alert(errorMessage);
     } finally {
       setIsAnalyzing(false);
     }
@@ -498,19 +479,6 @@ Responda APENAS com o JSON, sem texto adicional.`,
                   </View>
                 )}
               </View>
-            </View>
-
-            <View style={styles.resultCard}>
-              <View style={styles.cardTitleContainer}>
-                <Apple size={20} color={Colors.primary} />
-                <Text style={styles.resultCardTitle}>Ingredientes Identificados</Text>
-              </View>
-              {analysisResult.ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.ingredientItem}>
-                  <View style={styles.ingredientBullet} />
-                  <Text style={styles.ingredientText}>{ingredient}</Text>
-                </View>
-              ))}
             </View>
 
             {analysisResult.risks && analysisResult.risks.length > 0 && (

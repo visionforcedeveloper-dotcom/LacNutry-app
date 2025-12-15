@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,18 +7,23 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Search, Clock, Users, TrendingUp, Coffee, Utensils, Moon, Cake } from "lucide-react-native";
+import { Search, Clock, Users, TrendingUp, Coffee, Utensils, Moon, Cake, ChevronDown } from "lucide-react-native";
 import { router } from "expo-router";
 import Colors from "@/constants/colors";
 import { recipes } from "@/mocks/recipes";
 import { Recipe } from "@/types/recipe";
 
+const RECIPES_PER_PAGE = 20;
+
 export default function ReceitasScreen() {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<string>("todas");
+  const [displayedCount, setDisplayedCount] = useState(RECIPES_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const filters = [
     { id: "todas", label: "Todas", icon: null },
@@ -28,6 +33,11 @@ export default function ReceitasScreen() {
     { id: "sobremesa", label: "Sobremesa", icon: Cake },
   ];
 
+  // Resetar contador quando filtro ou busca mudar
+  useEffect(() => {
+    setDisplayedCount(RECIPES_PER_PAGE);
+  }, [searchQuery, selectedFilter]);
+
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesSearch = recipe.title
       .toLowerCase()
@@ -36,6 +46,19 @@ export default function ReceitasScreen() {
       selectedFilter === "todas" || recipe.tags.includes(selectedFilter);
     return matchesSearch && matchesFilter;
   });
+
+  // Receitas a serem exibidas (com paginação)
+  const displayedRecipes = filteredRecipes.slice(0, displayedCount);
+  const hasMoreRecipes = displayedCount < filteredRecipes.length;
+
+  const handleLoadMore = () => {
+    setIsLoadingMore(true);
+    // Simular um pequeno delay para UX
+    setTimeout(() => {
+      setDisplayedCount(prev => Math.min(prev + RECIPES_PER_PAGE, filteredRecipes.length));
+      setIsLoadingMore(false);
+    }, 300);
+  };
 
   const renderRecipeCard = (recipe: Recipe) => (
     <TouchableOpacity 
@@ -88,6 +111,11 @@ export default function ReceitasScreen() {
         <Text style={styles.headerSubtitle}>
           {filteredRecipes.length} receitas sem lactose
         </Text>
+        {displayedCount < filteredRecipes.length && (
+          <Text style={styles.headerLoadingInfo}>
+            Exibindo {displayedCount} de {filteredRecipes.length}
+          </Text>
+        )}
       </View>
 
       <View style={styles.searchContainer}>
@@ -156,7 +184,32 @@ export default function ReceitasScreen() {
             </Text>
           </View>
         ) : (
-          filteredRecipes.map(renderRecipeCard)
+          <>
+            {displayedRecipes.map(renderRecipeCard)}
+            
+            {hasMoreRecipes && (
+              <TouchableOpacity
+                style={styles.loadMoreButton}
+                onPress={handleLoadMore}
+                disabled={isLoadingMore}
+                activeOpacity={0.8}
+              >
+                {isLoadingMore ? (
+                  <ActivityIndicator color={Colors.primary} size="small" />
+                ) : (
+                  <>
+                    <ChevronDown size={20} color={Colors.primary} />
+                    <Text style={styles.loadMoreText}>
+                      Carregar mais receitas
+                    </Text>
+                    <Text style={styles.loadMoreSubtext}>
+                      +{Math.min(RECIPES_PER_PAGE, filteredRecipes.length - displayedCount)} receitas
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </ScrollView>
     </View>
@@ -183,6 +236,12 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
+  },
+  headerLoadingInfo: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: "600" as const,
+    marginTop: 4,
   },
   searchContainer: {
     paddingHorizontal: 20,
@@ -316,5 +375,35 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: 16,
     color: Colors.textSecondary,
+  },
+  loadMoreButton: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    marginTop: 8,
+    marginBottom: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: Colors.primaryLight,
+    minHeight: 80,
+  },
+  loadMoreText: {
+    fontSize: 16,
+    fontWeight: "700" as const,
+    color: Colors.primary,
+    marginTop: 8,
+  },
+  loadMoreSubtext: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    fontWeight: "500" as const,
   },
 });
